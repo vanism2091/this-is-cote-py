@@ -1,6 +1,8 @@
 import time
 import numpy as np
 import random
+# import pprint
+# pp = pprint.PrettyPrinter(indent=4)
 # import collections
 
 
@@ -9,7 +11,7 @@ def get_choices(iterable, k=1): return random.choices(iterable, k=k)
 
 
 # 문제 풀이때 만든 각 case test를 위한 함수
-def test_prob(prob_num, dispatcher, get_input):
+def test_prob(prob_num, dispatcher, get_input, show_input_info=True):
     dispatcher[f"prob{prob_num}"]()
     inputs = get_input(prob_num)
     t1, res1 = exec_time_check(dispatcher[f"prob{prob_num}_mine"], *inputs)
@@ -21,10 +23,13 @@ def test_prob(prob_num, dispatcher, get_input):
     #     t1 = exec_time_check(dispatcher[f"prob{prob_num}_mine"], inputs)
     #     t2 = exec_time_check(dispatcher[f"prob{prob_num}_db"], inputs)
     info = {
-        "input": inputs,
-        "res1": res1,
-        "res2": res2
+        "output":{
+            "res1": res1,
+            "res2": res2
+        }
     }
+    if show_input_info:
+        info["input"] = inputs
     return [t1, t2, res1 == res2 if res1 != None and res2 != None else None], info
 
 
@@ -51,12 +56,20 @@ def test_ntimes(test_method, ntimes, params):
 
 # 문제 풀이때 사용하기 위해 만든 test_ntimes 함수
 def test_probs_ntimes(test_method, ntimes, **params):
+    # params : prob_num, dispatcher, get_input, show_input_info
     # res [( case_num, [t1, t2, res1==res2], info_dict )]
-    # info_dict = {"input": , "res1": , "res2": }
+    # info_dict = {
+    #      "input": , 
+    #      "output": {
+    #           "res1": , "res2": 
+    #       } 
+    #   }
     # returns [info_dict], exec_avg: [avg_et_res1, avg_et_res2]
+
     res = np.empty((0, 3))
     for i in range(ntimes):
         res = np.vstack((res, np.array([i, *test_method(**params)], dtype=object)))
+        res[-1][2]["case#"] = i
 
     # exec_times, results 만 따로 보고 싶다
     exec_times_results = np.array([v for v in res[:, 1]], dtype=np.float32)
@@ -81,4 +94,4 @@ def test_probs_ntimes(test_method, ntimes, **params):
     else:
         # 모든 case 결과가 True인 경우
         print("All clear--!")
-    return res[:, 2].tolist(), exec_avg.tolist()
+    return res[:, 2], exec_avg.tolist()
