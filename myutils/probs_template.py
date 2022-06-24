@@ -1,5 +1,7 @@
 import sys
-sys.path.insert(0, '/Users/sei_dev/Documents/study/Algorithm/this_is_cote_py/myutils')
+import os 
+ 
+sys.path.insert(0, os.getcwd()+'/myutils')
 
 
 import mytest as te
